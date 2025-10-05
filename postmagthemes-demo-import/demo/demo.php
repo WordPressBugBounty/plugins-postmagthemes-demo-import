@@ -214,6 +214,34 @@ if($pmdi_plugin->createSlug($themeName) == 'ink-context-blog' ){
 }
 
 
+if($pmdi_plugin->createSlug($themeName) == 'newsmag-context-blog' ){
+	$config = array(
+	'static_page'    => 'blog',
+	'menu_locations' => array(
+		'primary' 	=> 'primary',
+		'sidepanel' => 'sidepanel',
+	),
+	'pmdi'           => array(
+		array(
+			'import_file_name'             => esc_html__( 'Import Newsmag Context Blog', 'pt-pmdi' ),
+			'categories'                   => array( __('Category A','pt-pmdi') ),
+			'import_file_url' 	           => esc_url( 'https://www.postmagthemes.com/download/newsmagcontextblog/contents1.xml'),
+			'import_widget_file_url'	     => esc_url( 'https://www.postmagthemes.com/download/newsmagcontextblog/widgets1.wie'),
+			'import_customizer_file_url'	 => esc_url( 'https://www.postmagthemes.com/download/newsmagcontextblog/customizer1_1.dat'),
+      		'import_notice'                => __( 'You have activated Newsmag Context Blog theme from postmagthemes hence its demo content will be set', 'pt-pmdi' ),
+      		'preview_url'                  => esc_url('https://contextblog.postmagthemes.com/newsmagcontextblog/'),
+			'import_preview_image_url'     => esc_url( 'https://www.postmagthemes.com/download/newsmagcontextblog/screenshot.png' ),
+		),
+		array(
+			'import_file_name'             => 'Coming soon',
+			'import_preview_image_url'     => esc_url( 'https://www.postmagthemes.com/download/colornewsmagazine/commingsoon_demo.jpg' ),
+			'import_notice'                => __( 'Coming soon, please do not import this. ', 'pt-pmdi' ),
+			),
+		
+	),
+	);
+}
+
 if ( isset( $config ) ) {
 	Theme_Demo_Import::init( apply_filters( 'theme_demo_filter', $config ) );
 }
