@@ -2,7 +2,7 @@
 Contributors: postmagthemes
 Tags: import, content, demo, data, widgets, settings, theme options
 Requires at least: 4.7
-Tested up to: 6.8
+Tested up to: 6.9
 Stable tag: 1.1.3
 Requires PHP: 5.2.4
 License: GPLv2 or later
@@ -18,6 +18,15 @@ PostmagThemes Demo Import is a free demo importer WordPress plugin that lets you
 
 == Change log ==
 
+= 1.1.6 -  Dec 31 2025	
+* bug only showing need of 3 files solved which arise during load_textdomain add_action init.
+
+= 1.1.5 -  Dec 22 2025	
+* load_textdomain error solved;
+
+= 1.1.4 -  Dec 5 2025	
+* save show_on_front as posts in all context blog theme, change the demo content of context blog pro, newsmag, ink.
+manual demo import bug fixed.
 
 = 1.1.3 -  oct 5 2024
 * newsmag context blog demo added

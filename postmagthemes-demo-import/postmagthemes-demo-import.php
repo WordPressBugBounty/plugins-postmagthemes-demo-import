@@ -4,7 +4,7 @@
 Plugin Name: PostmagThemes demo import
 Plugin URI: https://wordpress.org/plugins/postmagthemes-demo-import/
 Description: Import your content, widgets and theme settings with one click. Theme authors! Enable simple demo import for your theme demo data.
-Version: 1.1.3
+Version: 1.1.6
 Author: postmagthemes
 Author URI: http://postmagthemes.com
 License: GPL3
@@ -92,15 +92,9 @@ class PMDI_Plugin {
 		$slug = strtolower( trim( preg_replace( '/[\s-]+/', $delimiter, preg_replace( '/[^A-Za-z0-9-]+/', $delimiter, preg_replace( '/[&]/', 'and', preg_replace( '/[\']/', '', iconv( 'UTF-8', 'ASCII//TRANSLIT', $str ) ) ) ) ), $delimiter ) );
 		return $slug;
 	}
-}
 
+}
 // Instantiate the plugin class.
 $pmdi_plugin = new PMDI_Plugin();
-
-
-
-if ( is_admin() ) {
-	// Load demo.
-	require_once PT_PMDI_PATH . 'demo/class-demo.php';
-	require_once PT_PMDI_PATH . 'demo/demo.php';
-}
+require_once PT_PMDI_PATH . 'demo/class-demo.php';
+require_once PT_PMDI_PATH . 'demo/demo.php';

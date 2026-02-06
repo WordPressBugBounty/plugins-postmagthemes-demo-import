@@ -9,8 +9,8 @@ namespace PMDI;
 
 $predefined_themes = $this->import_files;
 
-if ( ! empty( $this->import_files ) && isset( $_GET['import-mode'] ) && 'manual' === isset( $_GET['import-mode'] ) ) {
-	$predefined_themes = array();
+if ( ! empty( $this->import_files ) && isset( $_GET['import-mode'] ) && 'manual' === $_GET['import-mode'] ) {
+    $predefined_themes = array();
 }
 
 /**

@@ -7,11 +7,16 @@
  */
 
 namespace PMDI;
-
+   
+// global $themeName;
+// if($pmdi_plugin->createSlug($themeName) == 'context-blog-pro' ) {
+// 	update_option( 'show_on_front', 'posts' );
+// }
 class ImportActions {
 	/**
 	 * Register all action hooks for this class.
 	 */
+	
 	public function register_hooks() {
 		// Before content import.
 		add_action( 'pt-pmdi/before_content_import_execution', array( $this, 'before_content_import_action' ), 10, 3 );
@@ -25,6 +30,8 @@ class ImportActions {
 
 		// After full import action.
 		add_action( 'pt-pmdi/after_all_import_execution', array( $this, 'after_import_action' ), 10, 3 );
+	
+
 
 		// Special widget import cases.
 		if ( apply_filters( 'pt_pmdi/enable_custom_menu_widget_ids_fix', true ) ) {
@@ -70,8 +77,6 @@ class ImportActions {
 			WidgetImporter::import( $selected_import_files['widgets'] );
 		}
 	}
-
-
 	/**
 	 * Execute the customizer import.
 	 *
@@ -119,6 +124,16 @@ class ImportActions {
 	 */
 	public function after_import_action( $selected_import_files, $import_files, $selected_index ) {
 		$this->do_import_action( 'pt-pmdi/after_import', $import_files[ $selected_index ] );
+		
+    	// Check if the active theme is 'Context Blog Pro' and update the option
+		$activate_theme = wp_get_theme();
+		$themeName = $activate_theme->get( 'Name' );
+		if ( strtolower( $themeName ) === 'context blog pro'  ||
+		strtolower( $themeName ) === 'context blog'  ||
+		strtolower( $themeName ) === 'ink context blog' ||
+		strtolower( $themeName ) === 'newsmag context blog' )  {
+			update_option( 'show_on_front', 'posts' );
+		}
 	}
 
 
