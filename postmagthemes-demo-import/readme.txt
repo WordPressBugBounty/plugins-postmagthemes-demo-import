@@ -2,7 +2,7 @@
 Contributors: postmagthemes
 Tags: import, content, demo, data, widgets, settings, theme options
 Requires at least: 4.7
-Tested up to: 6.9
+Tested up to: 7.0
 Stable tag: 1.1.3
 Requires PHP: 5.2.4
 License: GPLv2 or later
@@ -17,6 +17,9 @@ Based on One Click Demo Import https://wordpress.org/plugins/one-click-demo-impo
 PostmagThemes Demo Import is a free demo importer WordPress plugin that lets you import the demo you desire in just a single click. This plugin allows user to select the author name while downloading post. Hence user can seperate the downloaded post to seperate user. The plugin works out of the box; all you have to do is install and activate the plugin and all the demos available on your currently used theme will be on your fingertips (visit **Appearance=> Import Demo Data**)
 
 == Change log ==
+
+= 1.1.7 -  july 1 2026
+* demo of context blog pro fixed, menu bug fixed
 
 = 1.1.6 -  Dec 31 2025	
 * bug only showing need of 3 files solved which arise during load_textdomain add_action init.

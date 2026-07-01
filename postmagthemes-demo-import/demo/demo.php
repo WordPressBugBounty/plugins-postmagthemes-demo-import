@@ -20,7 +20,7 @@ if($pmdi_plugin->createSlug($themeName) == 'context-blog-pro' ){
 				'import_widget_file_url'	     => esc_url( 'https://www.postmagthemes.com/download/ContextblogPro/widgets.wie'),
 				'import_customizer_file_url'	 => esc_url( 'https://www.postmagthemes.com/download/ContextblogPro/customizer3.dat'),
 				  'import_notice'                => esc_html__( 'You have activated Context Blog Pro theme from postmagthemes hence its demo content will be set', 'pt-pmdi' ),
-				  'preview_url'                  => esc_url('https://contextblog.postmagthemes.com/ContextblogPro/'),
+				  'preview_url'                  => esc_url('https://contextblog.postmagthemes.com/contextblogpro/'),
 				'import_preview_image_url'     => esc_url( 'https://www.postmagthemes.com/download/ContextblogPro/screenshot.png' ),
 			),
 			array(
@@ -45,6 +45,7 @@ if($pmdi_plugin->createSlug($themeName) == 'context-blog-pro' ){
 	// even some has 2 menu lcation below code is not required as in the case of context blog theme. but required now.
 	// some has single menu location e.g color newsmagazine theme below code is still required.
 	// most of theme do not require below code as they have single menu location e.g best news, isha etc.
+	// below code should be repalaced in another theme as well later.
 
 	add_action( 'pt-pmdi/after_import', function( $selected_import = array() ) use ( $pmdi_plugin ) {
 
@@ -52,26 +53,49 @@ if($pmdi_plugin->createSlug($themeName) == 'context-blog-pro' ){
 		if ( $theme_slug !== 'context-blog-pro' ) {
 			return;
 		}
-
-		// Find menus by name (adjust names to match imported menu names).
+	
 		$primary_menu   = wp_get_nav_menu_object( 'primary' );
 		$sidepanel_menu = wp_get_nav_menu_object( 'sidemenu' );
-
-		// If menus aren’t found, do nothing (prevents nav-menus warning).
+	
 		if ( ! $primary_menu && ! $sidepanel_menu ) {
 			return;
 		}
-
+	
 		$locations = (array) get_theme_mod( 'nav_menu_locations', array() );
-
+	
+		foreach ( array( $primary_menu, $sidepanel_menu ) as $menu ) {
+			if ( ! $menu ) {
+				continue;
+			}
+	
+			// Fix draft/pending items left behind by the importer.
+			$items = wp_get_nav_menu_items( $menu->term_id, array( 'post_status' => 'any' ) );
+			if ( $items ) {
+				foreach ( $items as $item ) {
+					if ( $item->post_status !== 'publish' ) {
+						wp_update_post( array(
+							'ID'          => $item->ID,
+							'post_status' => 'publish',
+						) );
+					}
+				}
+			}
+	
+			// Fix stale term count so the theme actually renders the menu.
+			// This is the real fix for items being invisible until a manual
+			// save in Appearance > Menus.
+			wp_update_term_count_now( array( $menu->term_id ), 'nav_menu' );
+		}
+	
 		if ( $primary_menu ) {
 			$locations['primary'] = (int) $primary_menu->term_id;
 		}
 		if ( $sidepanel_menu ) {
 			$locations['sidepanel'] = (int) $sidepanel_menu->term_id;
 		}
-
+	
 		set_theme_mod( 'nav_menu_locations', $locations );
+	
 	}, 10, 1 );
 }
 
