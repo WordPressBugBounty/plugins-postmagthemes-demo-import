@@ -2,9 +2,9 @@
 
 /*
 Plugin Name: PostmagThemes demo import
-Plugin URI: https://wordpress.org/plugins/postmagthemes-demo-import/
+Plugin URI: https://www.postmagthemes.com/downloads/one-click-demo-import-wordpress-plugin/
 Description: Import your content, widgets and theme settings with one click. Theme authors! Enable simple demo import for your theme demo data.
-Version: 1.1.7
+Version: 1.1.8
 Author: postmagthemes
 Author URI: http://postmagthemes.com
 License: GPL3

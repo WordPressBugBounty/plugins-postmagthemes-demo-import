@@ -1,10 +1,10 @@
-=== PostmagThemes Demo Import ===
+=== PostmagThemes One click Demo Import for WordPress Site  ===
 Contributors: postmagthemes
 Tags: import, content, demo, data, widgets, settings, theme options
 Requires at least: 4.7
-Tested up to: 7.0
-Stable tag: 1.1.3
-Requires PHP: 5.2.4
+Tested up to: 7.1
+Stable tag: 1.1.8
+Requires PHP: 5.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,9 +14,29 @@ Based on One Click Demo Import https://wordpress.org/plugins/one-click-demo-impo
 
 == Description ==
 
-PostmagThemes Demo Import is a free demo importer WordPress plugin that lets you import the demo you desire in just a single click. This plugin allows user to select the author name while downloading post. Hence user can seperate the downloaded post to seperate user. The plugin works out of the box; all you have to do is install and activate the plugin and all the demos available on your currently used theme will be on your fingertips (visit **Appearance=> Import Demo Data**)
+PostmagThemes Demo Import makes it easy to set up a PostmagThemes theme with ready-made demo content. 
+Instead of adding demo posts and other content manually, simply install and activate the plugin, then go to Appearance → Import Demo Data. The demos available for your active PostmagThemes theme will be shown there.
+
+> Check out [demo of our ocdi](https://youtu.be/WaSYqGqYCro) 
+
+**Importing demo content
+
+***With a Postmagthemes theme:
+
+> Activate a Postmagthemes theme that supports demo import, such as Context blog.
+> Go to Appearance > Import Demo Data. You’ll see a preview of the theme’s demo.
+> Click Import and wait for it to finish.
+
+***With a theme from another author:
+
+> Get the three demo files from the theme author’s website: the content file (.xml), the widgets file (.wie), and the customizer settings file (.dat).
+> Go to Appearance > Import Demo Data. Since the active theme isn’t a Postmagthemes one, you’ll see three upload fields instead of a demo preview.
+> Upload each file to its matching field, then click Import.
 
 == Change log ==
+
+= 1.1.8 -  Sept 12 2026
+* tested upto 7.1 
 
 = 1.1.7 -  july 1 2026
 * demo of context blog pro fixed, menu bug fixed
