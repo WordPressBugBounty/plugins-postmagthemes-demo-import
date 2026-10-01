@@ -33,11 +33,6 @@ if($pmdi_plugin->createSlug($themeName) == 'context-blog-pro' ){
 				'preview_url'                  => esc_url('https://contextblog.postmagthemes.com/contextblogpro/newsmagpro'),
 				'import_preview_image_url'     => esc_url( 'https://www.postmagthemes.com/download/newsmagpro/screenshot.png' ),
 			),
-			array(
-				'import_file_name'             => esc_html__('Coming soon','pt-pmdi' ),
-				'import_preview_image_url'     => esc_url( 'https://www.postmagthemes.com/download/colornewsmagazine/commingsoon_demo.jpg' ),
-				'import_notice'                => esc_html__( 'Coming soon, please do not import this. ', 'pt-pmdi' ),
-				),
 		);
 	}, 10 );
 	
@@ -99,6 +94,55 @@ if($pmdi_plugin->createSlug($themeName) == 'context-blog-pro' ){
 	}, 10, 1 );
 }
 
+if($pmdi_plugin->createSlug($themeName) == 'blink-context-blog' ){
+
+	add_filter( 'pt-pmdi/import_files', function( $import_files ) {
+		if ( ! empty( $import_files ) ) {
+			return $import_files;
+		}
+
+		return array(
+			array(
+				'import_file_name'             => esc_html__( 'Import Blink Context Blog', 'pt-pmdi' ),
+				'categories'                   => array( esc_html__('Category A','pt-pmdi') ),
+				'import_file_url' 	           => esc_url( 'https://www.postmagthemes.com/download/blink/content2.xml'),
+				'import_widget_file_url'	     => esc_url( 'https://www.postmagthemes.com/download/blink/widgets2.wie'),
+				'import_customizer_file_url'	 => esc_url( 'https://www.postmagthemes.com/download/blink/customizer2.dat'),
+				  'import_notice'                => esc_html__( 'You have activated Blink Context Blog theme from postmagthemes hence its demo content will be set', 'pt-pmdi' ),
+				  'preview_url'                  => esc_url('https://contextblog.postmagthemes.com/blinkcontextblog/'),
+				'import_preview_image_url'     => esc_url( 'https://www.postmagthemes.com/download/blink/screenshot.jpg' ),
+			),
+		);
+	}, 10 );
+	add_action( 'pt-pmdi/after_import', function( $selected_import = array() ) use ( $pmdi_plugin ) {
+
+		$theme_slug = $pmdi_plugin->createSlug( wp_get_theme()->get( 'Name' ) );
+		if ( $theme_slug !== 'blink-context-blog' ) {
+			return;
+		}
+
+		// Find menus by name (adjust names to match imported menu names).
+		$primary_menu   = wp_get_nav_menu_object( 'primary' );
+		$sidepanel_menu = wp_get_nav_menu_object( 'Sidemenu' );
+
+		// If menus aren’t found, do nothing (prevents nav-menus warning).
+		if ( ! $primary_menu && ! $sidepanel_menu ) {
+			return;
+		}
+
+		$locations = (array) get_theme_mod( 'nav_menu_locations', array() );
+
+		if ( $primary_menu ) {
+			$locations['primary'] = (int) $primary_menu->term_id;
+		}
+		if ( $sidepanel_menu ) {
+			$locations['sidepanel'] = (int) $sidepanel_menu->term_id;
+		}
+
+		set_theme_mod( 'nav_menu_locations', $locations );
+	}, 10, 1 );
+}
+
 if($pmdi_plugin->createSlug($themeName) == 'newsmag-context-blog' ){
 
 	add_filter( 'pt-pmdi/import_files', function( $import_files ) {
@@ -116,11 +160,6 @@ if($pmdi_plugin->createSlug($themeName) == 'newsmag-context-blog' ){
 				  'import_notice'                => esc_html__( 'You have activated Newsmag Context Blog theme from postmagthemes hence its demo content will be set', 'pt-pmdi' ),
 				  'preview_url'                  => esc_url('https://contextblog.postmagthemes.com/newsmagcontextblog/'),
 				'import_preview_image_url'     => esc_url( 'https://www.postmagthemes.com/download/newsmagcontextblog/screenshot.png' ),
-			),
-			array(
-				'import_file_name'             => esc_html__('Coming soon','pt-pmdi' ),
-				'import_preview_image_url'     => esc_url( 'https://www.postmagthemes.com/download/colornewsmagazine/commingsoon_demo.jpg' ),
-				'import_notice'                => esc_html__( 'Coming soon, please do not import this. ', 'pt-pmdi' ),
 			),
 		);
 	}, 10 );
@@ -171,11 +210,6 @@ if($pmdi_plugin->createSlug($themeName) == 'best-news' ){
 				'preview_url'                => esc_url( 'https://www.postmagthemes.com/demobestnews/' ),
 				'import_preview_image_url'   => esc_url( 'https://www.postmagthemes.com/download/bestnews/screenshot.png' ),
 			),
-			array(
-				'import_file_name'         => esc_html__('Coming soon','pt-pmdi' ),
-				'import_preview_image_url' => esc_url( 'https://www.postmagthemes.com/download/bestnews/commingsoon_demo.jpg' ),
-				'import_notice'            => esc_html__( 'Coming soon, please do not import this. ', 'pt-pmdi' ),
-			),
 		);
 	}, 10 );
 }
@@ -199,11 +233,6 @@ if($pmdi_plugin->createSlug($themeName) == 'pro-isha' ){
 				'preview_url'                => esc_url( 'https://www.postmagthemes.com/demoproisha/' ),
 				'import_preview_image_url'   => esc_url( 'https://www.postmagthemes.com/download/proisha/screenshot.png' ),
 			),
-			array(
-				'import_file_name'         => esc_html__( 'Coming soon', 'pt-pmdi' ),
-				'import_preview_image_url' => esc_url( 'https://www.postmagthemes.com/download/proisha/commingsoon_demo.jpg' ),
-				'import_notice'            => esc_html__( 'Coming soon, please do not import this. ', 'pt-pmdi' ),
-			),
 		);
 	}, 10 );
 }
@@ -225,11 +254,6 @@ if($pmdi_plugin->createSlug($themeName) == 'isha' ){
 				'import_notice'              => esc_html__( 'You have activated Isha theme from postmagthemes hence now its demo content will be set', 'pt-pmdi' ),
 				'preview_url'                => esc_url( 'https://www.postmagthemes.com/demoisha/' ),
 				'import_preview_image_url'   => esc_url( 'https://www.postmagthemes.com/download/isha/screenshot.png' ),
-			),
-			array(
-				'import_file_name'         => esc_html__('Coming soon','pt-pmdi' ),
-				'import_preview_image_url' => esc_url( 'https://www.postmagthemes.com/download/isha/commingsoon_demo.jpg' ),
-				'import_notice'            => esc_html__( 'Coming soon, please do not import this. ', 'pt-pmdi' ),
 			),
 		);
 	}, 10 );
@@ -253,11 +277,6 @@ if($pmdi_plugin->createSlug($themeName) == 'ink-context-blog' ){
 				  'preview_url'                  => esc_url('https://contextblog.postmagthemes.com/inkcontextblog/'),
 				'import_preview_image_url'     => esc_url( 'https://www.postmagthemes.com/download/inkcontextblog/screenshot.png' ),
 			),
-			array(
-				'import_file_name'             => esc_html__('Coming soon','pt-pmdi' ),
-				'import_preview_image_url'     => esc_url( 'https://www.postmagthemes.com/download/colornewsmagazine/commingsoon_demo.jpg' ),
-				'import_notice'                => esc_html__( 'Coming soon, please do not import this. ', 'pt-pmdi' ),
-			),
 		);
 	}, 10 );
 }
@@ -279,11 +298,6 @@ if($pmdi_plugin->createSlug($themeName) == 'color-newsmagazine' ){
 				'import_notice'              => esc_html__( 'You have activated Color NewsMagazine theme from postmagthemes hence its demo content will be set', 'pt-pmdi' ),
 				'preview_url'                => esc_url( 'https://www.postmagthemes.com/democolornewsmagazine/' ),
 				'import_preview_image_url'   => esc_url( 'https://www.postmagthemes.com/download/colornewsmagazine/screenshot.png' ),
-			),
-			array(
-				'import_file_name'         => esc_html__( 'Coming soon', 'pt-pmdi' ),
-				'import_preview_image_url' => esc_url( 'https://www.postmagthemes.com/download/colornewsmagazine/commingsoon_demo.jpg' ),
-				'import_notice'            => esc_html__( 'Coming soon, please do not import this. ', 'pt-pmdi' ),
 			),
 		);
 	}, 10 );
@@ -345,11 +359,6 @@ if($pmdi_plugin->createSlug($themeName) == 'context-blog' ){
 				'import_notice'              => esc_html__( 'You have activated Context Blog theme from postmagthemes hence its demo content will be set', 'pt-pmdi' ),
 				'preview_url'                => esc_url( 'https://www.postmagthemes.com/wp-content/uploads/2024/06/contextblogdemo3.jpg' ),
 				'import_preview_image_url'   => esc_url( 'https://www.postmagthemes.com/download/contextblog/screenshot2.jpg' ),
-			),
-			array(
-				'import_file_name'         => esc_html__( 'Coming soon', 'pt-pmdi' ),
-				'import_preview_image_url' => esc_url( 'https://www.postmagthemes.com/download/colornewsmagazine/commingsoon_demo.jpg' ),
-				'import_notice'            => esc_html__( 'Coming soon, please do not import this.', 'pt-pmdi' ),
 			),
 		);
 	}, 10 );

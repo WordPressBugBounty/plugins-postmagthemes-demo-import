@@ -3,7 +3,7 @@ Contributors: postmagthemes
 Tags: import, content, demo, data, widgets, settings, theme options
 Requires at least: 4.7
 Tested up to: 7.1
-Stable tag: 1.1.8
+Stable tag: 1.1.9
 Requires PHP: 5.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html

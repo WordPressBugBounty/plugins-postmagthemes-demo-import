@@ -577,4 +577,182 @@ class Helpers {
 	public static function set_pmdi_import_data_transient( $data ) {
 		set_transient( 'pmdi_importer_data', $data, 0.1 * HOUR_IN_SECONDS );
 	}
+
+
+	/**
+	 * Get the author's themes or plugins from the WordPress.org API.
+	 * Results are cached for 12 hours (1 hour if the API request fails).
+	 *
+	 * @param string $type  'themes' or 'plugins'.
+	 * @param int    $limit Maximum number of items to return.
+	 * @return array List of items: name, url, image, active_installs.
+	 */
+	public static function get_wporg_items( $type = 'themes', $limit = 6 ) {
+		$author        = apply_filters( 'pt-pmdi/wporg_author', 'postmagthemes' );
+		$transient_key = 'pmdi_wporg_v3_' . $type . '_' . md5( $author );
+		$items         = get_transient( $transient_key );
+
+		if ( false === $items ) {
+			$items = array();
+
+			if ( 'plugins' === $type ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+				$response = plugins_api(
+					'query_plugins',
+					array(
+						'author'   => $author,
+						'per_page' => 30,
+						'fields'   => array(
+							'icons'             => true,
+							'active_installs'   => true,
+							'short_description' => true,
+							'rating'            => true,
+							'num_ratings'       => true,
+							'sections'          => false,
+							'description'       => false,
+						),
+					)
+				);
+
+				if ( ! is_wp_error( $response ) && ! empty( $response->plugins ) ) {
+					foreach ( $response->plugins as $plugin ) {
+						$plugin = (array) $plugin;
+						$icons  = isset( $plugin['icons'] ) ? (array) $plugin['icons'] : array();
+						$image  = '';
+						foreach ( array( '2x', '1x', 'svg', 'default' ) as $size ) {
+							if ( ! empty( $icons[ $size ] ) ) {
+								$image = $icons[ $size ];
+								break;
+							}
+						}
+
+						$items[] = array(
+							'name'            => wp_strip_all_tags( html_entity_decode( $plugin['name'], ENT_QUOTES, 'UTF-8' ) ),
+							'url'             => 'https://wordpress.org/plugins/' . $plugin['slug'] . '/',
+							'image'           => $image,
+							'description'     => isset( $plugin['short_description'] ) ? wp_strip_all_tags( html_entity_decode( $plugin['short_description'], ENT_QUOTES, 'UTF-8' ) ) : '',
+							'active_installs' => isset( $plugin['active_installs'] ) ? (int) $plugin['active_installs'] : 0,
+							'rating'          => isset( $plugin['rating'] ) ? (float) $plugin['rating'] : 0,
+							'num_ratings'     => isset( $plugin['num_ratings'] ) ? (int) $plugin['num_ratings'] : 0,
+							'reviews_url'     => 'https://wordpress.org/support/plugin/' . $plugin['slug'] . '/reviews/',
+						);
+					}
+				}
+			} else {
+				require_once ABSPATH . 'wp-admin/includes/theme.php';
+
+				$response = themes_api(
+					'query_themes',
+					array(
+						'author'   => $author,
+						'per_page' => 30,
+						'fields'   => array(
+							'screenshot_url'  => true,
+							'active_installs' => true,
+							'rating'          => true,
+							'num_ratings'     => true,
+							'description'     => false,
+							'sections'        => false,
+							'tags'            => false,
+						),
+					)
+				);
+
+				if ( ! is_wp_error( $response ) && ! empty( $response->themes ) ) {
+					foreach ( $response->themes as $theme ) {
+						$theme   = (array) $theme;
+						$items[] = array(
+							'name'            => wp_strip_all_tags( html_entity_decode( $theme['name'], ENT_QUOTES, 'UTF-8' ) ),
+							'url'             => 'https://wordpress.org/themes/' . $theme['slug'] . '/',
+							'image'           => empty( $theme['screenshot_url'] ) ? '' : set_url_scheme( $theme['screenshot_url'], 'https' ),
+							'description'     => '',
+							'active_installs' => isset( $theme['active_installs'] ) ? (int) $theme['active_installs'] : 0,
+							'rating'          => isset( $theme['rating'] ) ? (float) $theme['rating'] : 0,
+							'num_ratings'     => isset( $theme['num_ratings'] ) ? (int) $theme['num_ratings'] : 0,
+							'reviews_url'     => 'https://wordpress.org/support/theme/' . $theme['slug'] . '/reviews/',
+						);
+					}
+				}
+			}
+
+			// Most popular first.
+			usort(
+				$items,
+				function ( $a, $b ) {
+					return $b['active_installs'] - $a['active_installs'];
+				}
+			);
+
+			set_transient( $transient_key, $items, empty( $items ) ? HOUR_IN_SECONDS : 12 * HOUR_IN_SECONDS );
+		}
+
+		return array_slice( (array) $items, 0, absint( $limit ) );
+	}
+
+
+	/**
+	 * Format an active installs number the way WordPress.org shows it.
+	 *
+	 * @param int $count Active installs from the WordPress.org API.
+	 * @return string E.g. "Less than 10 active installations", "1,000+ active installations", "1+ million active installations".
+	 */
+	public static function format_active_installs( $count ) {
+		$count = (int) $count;
+
+		if ( $count >= 1000000 ) {
+			$millions = floor( $count / 1000000 );
+			/* translators: %s: number of millions. */
+			return sprintf( _nx( '%s+ million active installation', '%s+ million active installations', $millions, 'Active plugin/theme installations', 'pt-pmdi' ), number_format_i18n( $millions ) );
+		}
+
+		if ( $count < 10 ) {
+			return __( 'Less than 10 active installations', 'pt-pmdi' );
+		}
+
+		/* translators: %s: number of active installations. */
+		return sprintf( __( '%s+ active installations', 'pt-pmdi' ), number_format_i18n( $count ) );
+	}
+
+
+	/**
+	 * Save the current import progress, so the plugin page can show a progress bar.
+	 * The percentage never goes backwards, unless $reset is true.
+	 *
+	 * @param int    $percent Progress 0-100.
+	 * @param string $stage   Stage key: download, content, widgets, customizer, finishing, done.
+	 * @param bool   $reset   Start a new progress (allows going back to a lower value).
+	 */
+	public static function set_import_progress( $percent, $stage = '', $reset = false ) {
+		$percent = max( 0, min( 100, (int) $percent ) );
+		$current = get_transient( 'pmdi_import_progress' );
+
+		if ( ! $reset && is_array( $current ) ) {
+			if ( $current['percent'] > $percent ) {
+				$percent = $current['percent'];
+			}
+			if ( $current['percent'] === $percent && $current['stage'] === $stage ) {
+				return;
+			}
+		}
+
+		set_transient(
+			'pmdi_import_progress',
+			array(
+				'percent' => $percent,
+				'stage'   => $stage,
+			),
+			HOUR_IN_SECONDS
+		);
+	}
+
+	/**
+	 * Release the PHP session lock, so the progress requests are not blocked
+	 * while a long import request is running. The session data stays readable.
+	 */
+	public static function release_session_lock() {
+		if ( function_exists( 'session_status' ) && PHP_SESSION_ACTIVE === session_status() ) {
+			session_write_close();
+		}
+	}
 }

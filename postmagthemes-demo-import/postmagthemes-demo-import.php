@@ -4,7 +4,7 @@
 Plugin Name: PostmagThemes demo import
 Plugin URI: https://www.postmagthemes.com/downloads/one-click-demo-import-wordpress-plugin/
 Description: Import your content, widgets and theme settings with one click. Theme authors! Enable simple demo import for your theme demo data.
-Version: 1.1.8
+Version: 1.1.9
 Author: postmagthemes
 Author URI: http://postmagthemes.com
 License: GPL3
@@ -32,6 +32,9 @@ class PMDI_Plugin {
 		} else {
 			// Set plugin constants.
 			$this->set_plugin_constants();
+
+			// Send our own User-Agent when downloading demo files from postmagthemes.com.
+			add_filter( 'http_request_args', array( $this, 'set_demo_request_user_agent' ), 10, 2 );
 
 			// Composer autoloader.
 			require_once PT_PMDI_PATH . 'vendor/autoload.php';
@@ -86,6 +89,28 @@ class PMDI_Plugin {
 			$plugin_data = get_plugin_data( __FILE__ );
 			define( 'PT_PMDI_VERSION', $plugin_data['Version'] );
 		}
+	}
+
+	/**
+	 * Use a unique User-Agent for requests to postmagthemes.com and its subdomains
+	 * (demo XML, widgets, customizer files and demo images), so the host's
+	 * anti-bot system can recognise them as genuine.
+	 *
+	 * @param array  $args HTTP request arguments.
+	 * @param string $url  Request URL.
+	 * @return array
+	 */
+	public function set_demo_request_user_agent( $args, $url ) {
+		$host = wp_parse_url( $url, PHP_URL_HOST );
+
+		if ( $host && preg_match( '/(^|\.)postmagthemes\.com$/i', $host ) ) {
+			$args['user-agent'] = apply_filters(
+				'pt-pmdi/user_agent',
+				'PostmagThemesDemoImport/1.1.9 (+https://www.postmagthemes.com/)'
+			);
+		}
+
+		return $args;
 	}
 
 	public function createSlug( $str, $delimiter = '-' ) {

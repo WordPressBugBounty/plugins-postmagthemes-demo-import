@@ -37,6 +37,16 @@ class Importer {
 	private $pmdi;
 
 	/**
+	 * Number of items in the content file and the item currently being processed.
+	 * Used for the import progress bar.
+	 *
+	 * @var int
+	 */
+	private $total_items = 0;
+	private $item_index  = 0;
+	private $last_percent = -1;
+
+	/**
 	 * Constructor method.
 	 *
 	 * @param array  $importer_options Importer options.
@@ -123,6 +133,12 @@ class Importer {
 		// Disable import of authors.
 		add_filter( 'wxr_importer.pre_process.user', '__return_false' );
 
+		// Track the progress of the content import (runs before the new AJAX check below).
+		$this->total_items  = $this->count_content_items( $import_file_path );
+		$this->item_index   = 0;
+		$this->last_percent = -1;
+		add_filter( 'wxr_importer.pre_process.post', array( $this, 'track_content_progress' ), 5 );
+
 		// Check, if we need to send another AJAX request and set the importing author to the current user.
 		add_filter( 'wxr_importer.pre_process.post', array( $this, 'new_ajax_request_maybe' ) );
 
@@ -142,6 +158,53 @@ class Importer {
 		return $this->logger->error_output;
 	}
 
+
+	/**
+	 * Count the posts, pages, menu items and images in the content file.
+	 *
+	 * @param string $import_file_path Path to the import file.
+	 * @return int
+	 */
+	private function count_content_items( $import_file_path ) {
+		if ( empty( $import_file_path ) || ! is_readable( $import_file_path ) ) {
+			return 0;
+		}
+
+		$count  = 0;
+		$handle = fopen( $import_file_path, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+
+		if ( $handle ) {
+			while ( ! feof( $handle ) ) {
+				$count += substr_count( (string) fgets( $handle ), '<item>' );
+			}
+			fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Update the progress bar while the content items are imported.
+	 * Content import covers 5% - 90% of the whole import.
+	 * Every new AJAX call parses the file from the start, so the item index is the position in the file.
+	 *
+	 * @param array $data Current post data.
+	 * @return array
+	 */
+	public function track_content_progress( $data ) {
+		$this->item_index++;
+
+		if ( $this->total_items > 0 ) {
+			$percent = 5 + (int) floor( 85 * min( $this->item_index, $this->total_items ) / $this->total_items );
+
+			if ( $percent !== $this->last_percent ) {
+				$this->last_percent = $percent;
+				Helpers::set_import_progress( $percent, 'content' );
+			}
+		}
+
+		return $data;
+	}
 
 	/**
 	 * Check if we need to create a new AJAX request, so that server does not timeout.
@@ -176,6 +239,12 @@ class Importer {
 
 			// Set the current importer stat, so it can be continued on the next AJAX call.
 			$this->set_current_importer_data();
+
+			// Flush the deferred term and comment counts before this AJAX call ends.
+			// Otherwise they are lost and terms imported in this call (e.g. nav menus)
+			// keep a count of 0, which makes WordPress treat those menus as empty.
+			wp_defer_term_counting( false );
+			wp_defer_comment_counting( false );
 
 			// Send the request for a new AJAX call.
 			wp_send_json( $response );

@@ -118,6 +118,38 @@ do_action( 'pt-pmdi/plugin_page_header' );
 	echo wp_kses_post( apply_filters( 'pt-pmdi/plugin_intro_text', $plugin_intro_text ) );
 	?>
 
+	<?php
+	$pmdi_video_guides = apply_filters(
+		'pt-pmdi/video_guides',
+		array(
+			array(
+				'title' => __( 'Demo import guide for themes by PostmagThemes', 'pt-pmdi' ),
+				'url'   => 'https://www.youtube.com/watch?v=A7lnaAQ3WYQ',
+			),
+			array(
+				'title' => __( 'Import demo content with 3 files for a WordPress theme', 'pt-pmdi' ),
+				'url'   => 'https://www.youtube.com/watch?v=UjqwTE6Tf-o',
+			),
+		)
+	);
+	?>
+	<?php if ( ! empty( $pmdi_video_guides ) ) : ?>
+		<div class="pmdi__videos">
+			<h3 class="pmdi__videos-title"><span class="dashicons dashicons-video-alt3" aria-hidden="true"></span><?php esc_html_e( 'Video guides', 'pt-pmdi' ); ?></h3>
+			<div class="pmdi__videos-list">
+				<?php foreach ( $pmdi_video_guides as $pmdi_video ) : ?>
+					<a class="pmdi__video-link" href="<?php echo esc_url( $pmdi_video['url'] ); ?>" target="_blank" rel="noopener noreferrer">
+						<span class="pmdi__video-play dashicons dashicons-controls-play" aria-hidden="true"></span>
+						<span class="pmdi__video-text">
+							<span class="pmdi__video-name"><?php echo esc_html( $pmdi_video['title'] ); ?></span>
+							<span class="pmdi__video-meta"><?php esc_html_e( 'Watch on YouTube', 'pt-pmdi' ); ?> &rarr;</span>
+						</span>
+					</a>
+				<?php endforeach; ?>
+			</div>
+		</div>
+	<?php endif; ?>
+
 	<?php if ( empty( $this->import_files ) ) : ?>
 		<div class="notice  notice-info  is-dismissible">
 			<p><?php esc_html_e( 'There are no predefined import files available in this theme. Please upload the import files manually!', 'pt-pmdi' ); ?></p>
@@ -149,7 +181,8 @@ do_action( 'pt-pmdi/plugin_page_header' );
 			<button class="pmdi__button  button  button-hero  button-primary  js-pmdi-import-data"><?php esc_html_e( 'Import Demo Data', 'pt-pmdi' ); ?></button>
 		</p>
 
-	<?php elseif ( 1 === count( $predefined_themes ) ) : ?>
+	<?php elseif ( 1 === count( $predefined_themes ) && empty( $predefined_themes[0]['import_preview_image_url'] ) && empty( $predefined_themes[0]['preview_url'] ) ) : ?>
+		<?php // Single demo without preview image or preview link: simple layout. A single demo with a preview uses the grid card below. ?>
 
 		<div class="pmdi__demo-import-notice  js-pmdi-demo-import-notice">
 		<?php
@@ -171,7 +204,7 @@ do_action( 'pt-pmdi/plugin_page_header' );
 			// Prepare navigation data.
 			$categories = Helpers::get_all_demo_import_categories( $predefined_themes );
 		?>
-			<?php if ( ! empty( $categories ) ) : ?>
+			<?php if ( ! empty( $categories ) && count( $predefined_themes ) > 1 ) : ?>
 				<div class="pmdi__gl-header  js-pmdi-gl-header">
 					<nav class="pmdi__gl-navigation">
 						<ul>
@@ -222,11 +255,111 @@ do_action( 'pt-pmdi/plugin_page_header' );
 
 	<?php endif; ?>
 
-	<p class="pmdi__ajax-loader  js-pmdi-ajax-loader">
-		<span class="spinner"></span> <?php esc_html_e( 'Importing, please wait!', 'pt-pmdi' ); ?>
-	</p>
+	<div class="pmdi__ajax-loader  js-pmdi-ajax-loader">
+		<div class="pmdi__progress-head">
+			<span class="spinner"></span>
+			<span class="pmdi__progress-stage  js-pmdi-progress-stage"><?php esc_html_e( 'Importing, please wait!', 'pt-pmdi' ); ?></span>
+			<strong class="pmdi__progress-percent  js-pmdi-progress-percent">0%</strong>
+		</div>
+		<div class="pmdi__progress  js-pmdi-progress" role="progressbar" aria-label="<?php esc_attr_e( 'Import progress', 'pt-pmdi' ); ?>" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+			<span class="pmdi__progress-bar  js-pmdi-progress-bar"></span>
+		</div>
+		<p class="pmdi__progress-note"><?php esc_html_e( 'Please don’t close or refresh this page until the import is finished.', 'pt-pmdi' ); ?></p>
+	</div>
 
 	<div class="pmdi__response  js-pmdi-ajax-response"></div>
+
+	<?php
+	/**
+	 * Showcase of the author's free themes and plugins on WordPress.org.
+	 */
+	if ( apply_filters( 'pt-pmdi/show_wporg_showcase', true ) ) :
+	$pmdi_author   = apply_filters( 'pt-pmdi/wporg_author', 'postmagthemes' );
+$pmdi_sections = array(
+	'themes'  => array(
+		'title'     => __( 'Our free themes on WordPress.org', 'pt-pmdi' ),
+		'more_text' => __( 'More themes', 'pt-pmdi' ),
+		'more_url'  => 'https://wordpress.org/themes/author/' . $pmdi_author . '/',
+	),
+	'plugins' => array(
+		'title'     => __( 'Our free plugins on WordPress.org', 'pt-pmdi' ),
+		'more_text' => __( 'More plugins', 'pt-pmdi' ),
+		'more_url'  => 'https://wordpress.org/plugins/author/' . $pmdi_author . '/',
+	),
+);
+?>
+<div class="pmdi__wporg">
+	<?php foreach ( $pmdi_sections as $pmdi_type => $pmdi_section ) : ?>
+		<?php
+		$pmdi_items = Helpers::get_wporg_items( $pmdi_type, 6 );
+		if ( empty( $pmdi_items ) ) {
+			continue;
+		}
+		?>
+		<div class="pmdi__wporg-section pmdi__wporg-section--<?php echo esc_attr( $pmdi_type ); ?>">
+			<h2 class="pmdi__wporg-title"><?php echo esc_html( $pmdi_section['title'] ); ?></h2>
+
+			<div class="pmdi__wporg-grid">
+				<?php foreach ( $pmdi_items as $pmdi_item ) : ?>
+					<div class="pmdi__wporg-card">
+					<a class="pmdi__wporg-card-link" href="<?php echo esc_url( $pmdi_item['url'] ); ?>" target="_blank" rel="noopener noreferrer">
+						<span class="pmdi__wporg-image">
+							<?php if ( ! empty( $pmdi_item['image'] ) ) : ?>
+								<img src="<?php echo esc_url( $pmdi_item['image'] ); ?>" alt="<?php echo esc_attr( $pmdi_item['name'] ); ?>" loading="lazy">
+							<?php else : ?>
+								<span class="dashicons dashicons-<?php echo 'plugins' === $pmdi_type ? 'admin-plugins' : 'admin-appearance'; ?>"></span>
+							<?php endif; ?>
+						</span>
+						<span class="pmdi__wporg-body">
+							<span class="pmdi__wporg-name"><?php echo esc_html( $pmdi_item['name'] ); ?></span>
+							<?php if ( ! empty( $pmdi_item['description'] ) ) : ?>
+								<span class="pmdi__wporg-desc"><?php echo esc_html( $pmdi_item['description'] ); ?></span>
+							<?php endif; ?>
+							<span class="pmdi__wporg-link"><?php esc_html_e( 'View on WordPress.org', 'pt-pmdi' ); ?> &rarr;</span>
+						</span>
+					</a>
+					<div class="pmdi__wporg-meta">
+					<?php if ( isset( $pmdi_item['num_ratings'] ) ) : ?>
+						<a class="pmdi__wporg-rating" href="<?php echo esc_url( $pmdi_item['reviews_url'] ); ?>" target="_blank" rel="noopener noreferrer">
+							<?php
+							if ( function_exists( 'wp_star_rating' ) ) {
+								wp_star_rating(
+									array(
+										'rating' => $pmdi_item['rating'],
+										'type'   => 'percent',
+										'number' => $pmdi_item['num_ratings'],
+									)
+								);
+							}
+							?>
+							<span class="pmdi__wporg-rating-count">
+								<?php
+								echo esc_html(
+									$pmdi_item['num_ratings']
+										/* translators: %s: number of reviews. */
+										? sprintf( _n( '%s review', '%s reviews', $pmdi_item['num_ratings'], 'pt-pmdi' ), number_format_i18n( $pmdi_item['num_ratings'] ) )
+										: __( 'No reviews yet', 'pt-pmdi' )
+								);
+								?>
+							</span>
+						</a>
+					<?php endif; ?>
+						<span class="pmdi__wporg-installs">
+							<span class="dashicons dashicons-chart-bar" aria-hidden="true"></span>
+							<?php echo esc_html( Helpers::format_active_installs( $pmdi_item['active_installs'] ) ); ?>
+						</span>
+					</div>
+					</div>
+				<?php endforeach; ?>
+			</div>
+
+			<p class="pmdi__wporg-more">
+				<a class="button button-secondary" href="<?php echo esc_url( $pmdi_section['more_url'] ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $pmdi_section['more_text'] ); ?></a>
+			</p>
+		</div>
+	<?php endforeach; ?>
+</div>
+	<?php endif; ?>
 </div>
 
 <?php

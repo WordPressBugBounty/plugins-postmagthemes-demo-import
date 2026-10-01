@@ -107,6 +107,7 @@ class OneClickDemoImport {
 		add_action( 'wp_ajax_pmdi_import_demo_data', array( $this, 'import_demo_data_ajax_callback' ) );
 		add_action( 'wp_ajax_pmdi_import_customizer_data', array( $this, 'import_customizer_data_ajax_callback' ) );
 		add_action( 'wp_ajax_pmdi_after_import_data', array( $this, 'after_all_import_data_ajax_callback' ) );
+		add_action( 'wp_ajax_pmdi_import_progress', array( $this, 'import_progress_ajax_callback' ) );
 		add_action( 'after_setup_theme', array( $this, 'setup_plugin_with_filter_data' ) );
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 	}
@@ -192,6 +193,12 @@ class OneClickDemoImport {
 						'dialog_no'             => esc_html__( 'Cancel', 'pt-pmdi' ),
 						'dialog_yes'            => esc_html__( 'Yes, import!', 'pt-pmdi' ),
 						'selected_import_title' => esc_html__( 'Selected demo import:', 'pt-pmdi' ),
+						'stage_download'        => esc_html__( 'Downloading demo files…', 'pt-pmdi' ),
+						'stage_content'         => esc_html__( 'Importing posts, pages, menus and images…', 'pt-pmdi' ),
+						'stage_widgets'         => esc_html__( 'Importing widgets…', 'pt-pmdi' ),
+						'stage_customizer'      => esc_html__( 'Importing theme settings…', 'pt-pmdi' ),
+						'stage_finishing'       => esc_html__( 'Finishing up…', 'pt-pmdi' ),
+						'stage_done'            => esc_html__( 'Import complete!', 'pt-pmdi' ),
 						'installing'               => esc_html__( 'Installing...', 'one-click-demo-import' ),
 						'importing'                => esc_html__( 'Importing...', 'one-click-demo-import' ),
 						'successful_import'        => esc_html__( 'Successfully Imported!', 'one-click-demo-import' ),
@@ -227,10 +234,16 @@ class OneClickDemoImport {
 		// Verify if the AJAX call is valid (checks nonce and current_user_can).
 		Helpers::verify_ajax_call();
 
+		// Don't block the progress bar requests while this long request runs.
+		Helpers::release_session_lock();
+
 		// Is this a new AJAX call to continue the previous import?
 		$use_existing_importer_data = $this->use_existing_importer_data();
 
 		if ( ! $use_existing_importer_data ) {
+
+			// Start a new progress bar.
+			Helpers::set_import_progress( 1, 'download', true );
 
 			// Create a date and time string to use for demo and log file names.
 			Helpers::set_demo_import_start_time();
@@ -287,6 +300,9 @@ class OneClickDemoImport {
 		// Save the initial import data as a transient, so other import parts (in new AJAX calls) can use that data.
 		Helpers::set_pmdi_import_data_transient( $this->get_current_importer_data() );
 
+		// Demo files are ready, the content import starts.
+		Helpers::set_import_progress( 5, 'content' );
+
 		if ( ! $this->before_import_executed ) {
 			$this->before_import_executed = true;
 
@@ -306,6 +322,9 @@ class OneClickDemoImport {
 		if ( ! empty( $this->selected_import_files['content'] ) ) {
 			$this->append_to_frontend_error_messages( $this->importer->import_content( $this->selected_import_files['content'] ) );
 		}
+
+		// Content is done, widgets are next.
+		Helpers::set_import_progress( 90, 'widgets' );
 
 		/**
 		 * 4). Execute the actions hooked to the 'pt-pmdi/after_content_import_execution' action:
@@ -343,6 +362,8 @@ class OneClickDemoImport {
 	public function import_customizer_data_ajax_callback() {
 		// Verify if the AJAX call is valid (checks nonce and current_user_can).
 		Helpers::verify_ajax_call();
+		Helpers::release_session_lock();
+		Helpers::set_import_progress( 94, 'customizer' );
 
 		// Get existing import data.
 		if ( $this->use_existing_importer_data() ) {
@@ -372,6 +393,8 @@ class OneClickDemoImport {
 	public function after_all_import_data_ajax_callback() {
 		// Verify if the AJAX call is valid (checks nonce and current_user_can).
 		Helpers::verify_ajax_call();
+		Helpers::release_session_lock();
+		Helpers::set_import_progress( 97, 'finishing' );
 
 		// Get existing import data.
 		if ( $this->use_existing_importer_data() ) {
@@ -392,9 +415,33 @@ class OneClickDemoImport {
 	/**
 	 * Send a JSON response with final report.
 	 */
+	/**
+	 * AJAX callback: return the current import progress for the progress bar.
+	 */
+	public function import_progress_ajax_callback() {
+		check_ajax_referer( 'pmdi-ajax-verification', 'security' );
+		Helpers::release_session_lock();
+
+		if ( ! current_user_can( 'import' ) ) {
+			wp_send_json_error();
+		}
+
+		$progress = get_transient( 'pmdi_import_progress' );
+
+		wp_send_json_success(
+			is_array( $progress ) ? $progress : array(
+				'percent' => 0,
+				'stage'   => 'download',
+			)
+		);
+	}
+
+
 	private function final_response() {
 		// Delete importer data transient for current import.
 		delete_transient( 'pmdi_importer_data' );
+
+		Helpers::set_import_progress( 100, 'done' );
 
 		// Display final messages (success or error messages).
 		if ( empty( $this->frontend_error_messages ) ) {

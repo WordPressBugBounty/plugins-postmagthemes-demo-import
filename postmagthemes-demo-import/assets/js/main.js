@@ -323,6 +323,71 @@ jQuery(
 		 *
 		 * @param FormData data The data to be passed to the AJAX call.
 		 */
+		/**
+		 * Import progress bar (0-100%).
+		 * Polls the server for the progress while the import AJAX calls run.
+		 */
+		var pmdiProgress = {
+			timer: null,
+			value: 0,
+
+			start: function () {
+				var $loader = $( '.js-pmdi-ajax-loader' );
+
+				this.value = 0;
+				$loader.removeClass( 'is-complete' ).show();
+				this.render( 0, 'download' );
+
+				if ( ! this.timer ) {
+					this.timer = setInterval( this.poll.bind( this ), 1500 );
+				}
+			},
+
+			// Never let the bar go backwards.
+			set: function ( percent, stage ) {
+				percent = Math.max( this.value, Math.min( 100, Math.round( percent ) || 0 ) );
+				this.value = percent;
+				this.render( percent, stage );
+			},
+
+			render: function ( percent, stage ) {
+				$( '.js-pmdi-progress-bar' ).css( 'width', percent + '%' );
+				$( '.js-pmdi-progress' ).attr( 'aria-valuenow', percent );
+				$( '.js-pmdi-progress-percent' ).text( percent + '%' );
+
+				if ( stage && pmdi.texts[ 'stage_' + stage ] ) {
+					$( '.js-pmdi-progress-stage' ).text( pmdi.texts[ 'stage_' + stage ] );
+				}
+			},
+
+			poll: function () {
+				var self = this;
+
+				$.post( pmdi.ajax_url, { action: 'pmdi_import_progress', security: pmdi.ajax_nonce } )
+					.done( function ( response ) {
+						if ( self.timer && response && response.success && response.data ) {
+							self.set( response.data.percent, response.data.stage );
+						}
+					} );
+			},
+
+			stop: function () {
+				clearInterval( this.timer );
+				this.timer = null;
+			},
+
+			complete: function () {
+				this.stop();
+				this.set( 100, 'done' );
+				$( '.js-pmdi-ajax-loader' ).addClass( 'is-complete' );
+			},
+
+			fail: function () {
+				this.stop();
+				$( '.js-pmdi-ajax-loader' ).hide();
+			}
+		};
+
 		function ajaxCall( data ) {
 
 			// console.log(data);
@@ -334,7 +399,10 @@ jQuery(
 					contentType: false,
 					processData: false,
 					beforeSend:  function() {
-						$( '.js-pmdi-ajax-loader' ).show();
+						// First request of a new import: start the progress bar.
+						if ( ! pmdiProgress.timer ) {
+							pmdiProgress.start();
+						}
 					}
 				}
 			)
@@ -344,6 +412,7 @@ jQuery(
 					if ( 'undefined' !== typeof response.status && 'newAJAX' === response.status ) {
 							ajaxCall( data );
 					} else if ( 'undefined' !== typeof response.status && 'customizerAJAX' === response.status ) {
+						   pmdiProgress.set( 94, 'customizer' );
 						   // Fix for data.set and data.delete, which they are not supported in some browsers.
 						   var newData = new FormData();
 						   newData.append( 'action', 'pmdi_import_customizer_data' );
@@ -356,6 +425,7 @@ jQuery(
 
 						ajaxCall( newData );
 					} else if ( 'undefined' !== typeof response.status && 'afterAllImportAJAX' === response.status ) {
+						  pmdiProgress.set( 97, 'finishing' );
 						  // Fix for data.set and data.delete, which they are not supported in some browsers.
 						  var newData = new FormData();
 						  newData.append( 'action', 'pmdi_after_import_data' );
@@ -363,20 +433,20 @@ jQuery(
 						  ajaxCall( newData );
 					} else if ( 'undefined' !== typeof response.message ) {
 						 $( '.js-pmdi-ajax-response' ).append( '<p>' + response.message + '</p>' );
-						 $( '.js-pmdi-ajax-loader' ).hide();
+						 pmdiProgress.complete();
 
 						 // Trigger custom event, when PMDI import is complete.
 						 $( document ).trigger( 'pmdiImportComplete' );
 					} else {
 						$( '.js-pmdi-ajax-response' ).append( '<div class="notice  notice-error  is-dismissible"><p>' + response + '</p></div>' );
-						$( '.js-pmdi-ajax-loader' ).hide();
+						pmdiProgress.fail();
 					}
 				}
 			)
 			.fail(
 				function( error ) {
 					$( '.js-pmdi-ajax-response' ).append( '<div class="notice  notice-error  is-dismissible"><p>Error: ' + error.statusText + ' (' + error.status + ')' + '</p></div>' );
-					$( '.js-pmdi-ajax-loader' ).hide();
+					pmdiProgress.fail();
 				}
 			);
 		}
