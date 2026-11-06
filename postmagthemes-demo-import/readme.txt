@@ -1,115 +1,176 @@
 === PostmagThemes One click Demo Import for WordPress Site  ===
 Contributors: postmagthemes
-Tags: import, content, demo, data, widgets, settings, theme options
+Tags: demo importer, one click import, import, customizer, widgets
 Requires at least: 4.7
 Tested up to: 7.1
-Stable tag: 1.1.9
-Requires PHP: 5.8
+Stable tag: 1.2.0
+Requires PHP: 5.6
 License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-PostmagThemes Demo Import is a simple and easy-to-use demo importer WordPress plugin that allows you to import the theme demo data (design and content placement) you desire in just a single click.
-
-Based on One Click Demo Import https://wordpress.org/plugins/one-click-demo-import/
+Import a theme's demo content, widgets and customizer settings in one click. Works with PostmagThemes themes and themes from other authors.
 
 == Description ==
 
-PostmagThemes Demo Import makes it easy to set up a PostmagThemes theme with ready-made demo content. 
-Instead of adding demo posts and other content manually, simply install and activate the plugin, then go to Appearance → Import Demo Data. The demos available for your active PostmagThemes theme will be shown there.
+**PostmagThemes Demo Import** sets up your site to look like the theme demo in a single click. Instead of creating posts, pages, menus and widgets by hand, activate the plugin, go to **Appearance > Import Demo Data**, and import.
 
-> Check out [demo of our ocdi](https://youtu.be/WaSYqGqYCro) 
+It is built for PostmagThemes themes, but it also works with **any theme** that provides standard demo files.
 
-**Importing demo content
+[Watch the demo video](https://youtu.be/WaSYqGqYCro)
 
-***With a Postmagthemes theme:
+= Features =
 
-> Activate a Postmagthemes theme that supports demo import, such as Context blog.
-> Go to Appearance > Import Demo Data. You’ll see a preview of the theme’s demo.
-> Click Import and wait for it to finish.
+* **One-click import** for supported PostmagThemes themes, with a preview of each available demo
+* **Works with any theme** – upload the content (.xml), widgets (.wie) and customizer (.dat) files from your theme author
+* **Imports everything** – posts, pages, media, menus, widgets and customizer settings
+* **Choose the post author** – assign imported posts to any user on your site
+* **Safe uploads** – files are checked for the correct type before they are saved to the server
+* Translation ready
 
-***With a theme from another author:
+= Supported PostmagThemes themes =
 
-> Get the three demo files from the theme author’s website: the content file (.xml), the widgets file (.wie), and the customizer settings file (.dat).
-> Go to Appearance > Import Demo Data. Since the active theme isn’t a Postmagthemes one, you’ll see three upload fields instead of a demo preview.
-> Upload each file to its matching field, then click Import.
+Context Blog, Context Blog Pro, Blink, Ink, NewsMag and other PostmagThemes themes that support demo import.
 
-== Change log ==
+= How to import a demo =
 
-= 1.1.8 -  Sept 12 2026
-* tested upto 7.1 
+**With a PostmagThemes theme**
 
-= 1.1.7 -  july 1 2026
-* demo of context blog pro fixed, menu bug fixed
+1. Activate a PostmagThemes theme that supports demo import, such as Context Blog.
+2. Go to **Appearance > Import Demo Data**. You will see a preview of the theme's demo.
+3. Click **Import** and wait for it to finish.
 
-= 1.1.6 -  Dec 31 2025	
-* bug only showing need of 3 files solved which arise during load_textdomain add_action init.
+**With a theme from another author**
 
-= 1.1.5 -  Dec 22 2025	
-* load_textdomain error solved;
+1. Download the three demo files from the theme author's website: content (.xml), widgets (.wie) and customizer settings (.dat).
+2. Go to **Appearance > Import Demo Data**. Because the active theme is not a PostmagThemes theme, you will see three upload fields instead of a demo preview.
+3. Upload each file to its matching field, then click **Import**.
 
-= 1.1.4 -  Dec 5 2025	
-* save show_on_front as posts in all context blog theme, change the demo content of context blog pro, newsmag, ink.
-manual demo import bug fixed.
+= Credits =
 
-= 1.1.3 -  oct 5 2024
-* newsmag context blog demo added
-
-= 1.1.2 -  jun 20 2024
-* 2nd Demo for context blog added
-
-= 1.1.1 -  jun 13 2024
-* Demo for ink context blog added
-
-= 1.1.0 -  Jan 15 2024
-* Demo for context blog pro added
-
-= 1.0.9 -  june 12 2023
-* error 500 bug fixed, support upto PHP 8.1.2, demo for context blog is added.
-
-= 1.0.8 - 17 Dec 2022 =
-* 3 Files upload is restricted to proper file type with more proper way before saving to server . They are validated prior to save it to the server even Jquery is intercepeted. Tested upto lateset version Wp. Proper sanitiazation and validation done.
-
-= 1.0.7 - 19 May 2022 =
-* 3 Files upload is restricted to proper file type using jquery. Tested upto lateset version Wp. Proper sanitiazation and validation done.
-
-= 1.0.6 - 9 Mar 2021 =
-* set theme mode for color newsmagazine removed, new demo content file replaced.
-
-= 1.0.5 - 1 Mar 2021 =
-* non-object bug is solved here on line 30 and 31 WXRImporter.php
-
-= 1.0.4 - 1 Mar 2021 =
-* color newsmagazine demo import added, userbased import added.
-
-= 1.0.3 - 4 jan 2020 =
-* Pro Isha demo import added
-
-= 1.0.2 - 19 dec 2019 =
-* Isha demo import added
-
-= 1.0.1 - 21th oct 2019 =
-* redux has been removed
-
-= 1.0.0 - 27th august 2019 =
-* Initial Release.
+Based on [One Click Demo Import](https://wordpress.org/plugins/one-click-demo-import/).
 
 == Installation ==
 
-1. Downlad file `postmagthemes-demo-import.zip`.
-2. Upload file to the `/wp-content/plugins/` directory.
-3. Activate the plugin through the `Plugins` menu in WordPress.
-4. Or you can directly install from wordpress.org
-5. This plugin allows user to select the author name while downloading post. Hence user can seperate the downloaded post to seperate user. 
+**From your WordPress dashboard**
+
+1. Go to **Plugins > Add New**.
+2. Search for "PostmagThemes Demo Import".
+3. Click **Install Now**, then **Activate**.
+
+**Manual installation**
+
+1. Download `postmagthemes-demo-import.zip`.
+2. Upload the `postmagthemes-demo-import` folder to `/wp-content/plugins/`.
+3. Activate the plugin from the **Plugins** menu in WordPress.
 
 == Frequently Asked Questions ==
 
-= What is the purpose of this plugins. =
+= What does this plugin do? =
 
-The purpose of this plugin is to make avialable Demo content to postmagthemes's theme.
+It imports a theme's demo content, widgets and customizer settings so your site matches the theme demo.
+
+= Does it only work with PostmagThemes themes? =
+
+No. PostmagThemes themes get one-click import with a demo preview. For other themes, upload the .xml, .wie and .dat files provided by the theme author.
+
+= Where do I find the import page? =
+
+Go to **Appearance > Import Demo Data** in your WordPress dashboard.
+
+= Can I assign imported posts to a specific user? =
+
+Yes. Before importing, choose which user should be set as the author of the imported posts.
+
+= Will importing delete my existing content? =
+
+No. The importer adds the demo content alongside your existing content. We recommend importing on a fresh site for the best result.
 
 == Screenshots ==
-* screenshot-1.jpg, screenshot-1.jpg, screenshot-1.jpg Self Created - CCO 
 
-== Images Resources ==
-All images are licensed under Creative Commons Zero (CC0) license.
-* banner-772x250.jpg, banner-1544x500.jpg, icon-128x128.jpg, icon-256x256.jpg Self Created - CCO 
+1. Demo preview for a supported PostmagThemes theme.
+2. Upload fields for importing demo files from another theme.
+3. Import complete.
+
+== Changelog ==
+
+= 1.2.0 - November 6, 2026 =
+* Fixed: Corrected the minimum PHP version requirement.
+
+= 1.1.9 - October 4, 2026 =
+* Added: Own agent.
+
+= 1.1.8 - September 12, 2026 =
+* Tested up to WordPress 7.1.
+
+= 1.1.7 - July 1, 2026 =
+* Fixed: Context Blog Pro demo import.
+* Fixed: Menu import bug.
+
+= 1.1.6 - December 31, 2025 =
+* Fixed: Upload fields for 3 files shown incorrectly, caused by load_textdomain on the init hook.
+
+= 1.1.5 - December 22, 2025 =
+* Fixed: load_textdomain error.
+
+= 1.1.4 - December 5, 2025 =
+* Changed: show_on_front is now saved as "posts" for all Context Blog themes.
+* Changed: Updated demo content for Context Blog Pro, NewsMag and Ink.
+* Fixed: Manual demo import bug.
+
+= 1.1.3 - October 5, 2024 =
+* Added: NewsMag Context Blog demo.
+
+= 1.1.2 - June 20, 2024 =
+* Added: Second demo for Context Blog.
+
+= 1.1.1 - June 13, 2024 =
+* Added: Ink Context Blog demo.
+
+= 1.1.0 - January 15, 2024 =
+* Added: Context Blog Pro demo.
+
+= 1.0.9 - June 12, 2023 =
+* Added: Context Blog demo.
+* Fixed: Error 500 during import.
+* Tested with PHP up to 8.1.2.
+
+= 1.0.8 - December 17, 2022 =
+* Improved: Uploaded files are now validated on the server before saving, even if the browser check is bypassed.
+* Improved: Sanitization and validation.
+* Tested with the latest WordPress version.
+
+= 1.0.7 - May 19, 2022 =
+* Added: File type check for the 3 upload fields.
+* Improved: Sanitization and validation.
+
+= 1.0.6 - March 9, 2021 =
+* Removed: Theme mode setting for Color NewsMagazine.
+* Changed: Replaced demo content file.
+
+= 1.0.5 - March 1, 2021 =
+* Fixed: Non-object error in WXRImporter.php.
+
+= 1.0.4 - March 1, 2021 =
+* Added: Color NewsMagazine demo import.
+* Added: Choose the author for imported posts.
+
+= 1.0.3 - January 4, 2020 =
+* Added: Isha Pro demo import.
+
+= 1.0.2 - December 19, 2019 =
+* Added: Isha demo import.
+
+= 1.0.1 - October 21, 2019 =
+* Removed: Redux dependency.
+
+= 1.0.0 - August 27, 2019 =
+* Initial release.
+
+== Upgrade Notice ==
+
+= 1.2.0 =
+Corrects the minimum PHP version requirement.
+
+== Image Resources ==
+
+All plugin images (banners, icons and screenshots) are self-created and licensed under Creative Commons Zero (CC0).
