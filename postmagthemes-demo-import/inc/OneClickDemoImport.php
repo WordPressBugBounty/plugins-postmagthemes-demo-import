@@ -110,6 +110,9 @@ class OneClickDemoImport {
 		add_action( 'wp_ajax_pmdi_import_progress', array( $this, 'import_progress_ajax_callback' ) );
 		add_action( 'after_setup_theme', array( $this, 'setup_plugin_with_filter_data' ) );
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
+
+		// Review request after a successful import.
+		ReviewNotice::init();
 	}
 
 
@@ -455,7 +458,10 @@ class OneClickDemoImport {
 				'</strong>',
 				'</p></div>'
 			);
-			
+
+			// Remember the successful import and ask for a review.
+			ReviewNotice::record_successful_import();
+			$response['message'] .= ReviewNotice::success_message_html();
 		}
 		else {
 			$response['message'] = $this->frontend_error_messages_display() . '<br>';
